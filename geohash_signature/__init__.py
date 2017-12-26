@@ -179,17 +179,23 @@ class GeohashSignature:
         return (prefix, set(sorted(entities)))
 
 
-def intersects(shape, geohash_level=10):
+def intersects(shape, geohash_level=10, compress=False):
     """Return Geohashes at intersect shape"""
-    return GeohashSignature().generate(get_shape(shape),
-                                       geohash_level)
+    result = GeohashSignature().generate(get_shape(shape),
+                                         geohash_level)
+    if compress is False:
+        return result
+    return GeohashSignature.compress_hashes(result)
 
 
-def within(shape, geohash_level=10):
+def within(shape, geohash_level=10, compress=False):
     """Return Geohashes that are within the shape"""
-    return GeohashSignature().generate(get_shape(shape),
-                                       geohash_level,
-                                       conditions=['within'])
+    result = GeohashSignature().generate(get_shape(shape),
+                                         geohash_level,
+                                         conditions=['within'])
+    if compress is False:
+        return result
+    return GeohashSignature.compress_hashes(result)
 
 
 def get_shape(shape):

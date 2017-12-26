@@ -39,6 +39,13 @@ GEOHASHES_WITHIN = geohash_signature.within(SHAPE, geohash_level=10)
 # Optionally you can compress the response using their common prefix.
 # (geohash_prefix, (part, part, part))
 # ("dr5rspj", {"tzg", "tzp", "tzq", "tzr"})
+
+# intersects & within accept an optional compress attribute
+# PREFIX, COMPONENTS = geohash_signature.intersects(SHAPE,
+                                                    geohash_level=10,
+                                                    compress=True)
+
+# Or manually compress the results
 PREFIX, COMPONENTS = GeohashSignature.compress_hashes(GEOHASHES)
 ```
 

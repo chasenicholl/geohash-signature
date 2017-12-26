@@ -64,8 +64,7 @@ def main():
                                                             geohash_level)
         if compress_response() is False:
             return print(geohashes)
-        instance = geohash_signature.GeohashSignature
-        prefix, hashes = instance.compress_hashes(geohashes)
+        prefix, hashes = geohash_signature.compress_geohashes(geohashes)
         return print('{}:{}'.format(prefix, ','.join(hashes)))
 
 if __name__ == '__main__':

@@ -171,7 +171,7 @@ class GeohashSignature:
             json.dump(feature_collection, file)
 
     @staticmethod
-    def compress_hashes(hashes):
+    def compress_geohashes(hashes):
         """Compress hashes to common_prefix:partical,partical"""
         sorted_hashes = sorted(hashes)
         prefix = os.path.commonprefix(sorted_hashes)
@@ -185,7 +185,7 @@ def intersects(shape, geohash_level=10, compress=False):
                                          geohash_level)
     if compress is False:
         return result
-    return GeohashSignature.compress_hashes(result)
+    return GeohashSignature.compress_geohashes(result)
 
 
 def within(shape, geohash_level=10, compress=False):
@@ -195,7 +195,17 @@ def within(shape, geohash_level=10, compress=False):
                                          conditions=['within'])
     if compress is False:
         return result
-    return GeohashSignature.compress_hashes(result)
+    return GeohashSignature.compress_geohashes(result)
+
+
+def geohash_feature_collection(hashes, save_to=None):
+    """Shortcut to geohash_feature_collection"""
+    return GeohashSignature.geohash_feature_collection(hashes, save_to)
+
+
+def compress_geohashes(hashes):
+    """Shortcut to compress_geohashes"""
+    return GeohashSignature.compress_geohashes(hashes)
 
 
 def get_shape(shape):

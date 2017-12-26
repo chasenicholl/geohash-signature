@@ -1,6 +1,6 @@
 # GeohashSignature
 
-Did you need to know what Geohashes make up a Polygon, or run along a LineString _**fast**_? Generate a **Geohash Signature** from _any_ shape using the `geohash_signature` module!
+Do you need to know what Geohashes make up a Polygon, or run along a LineString _**fast**_? Generate a **Geohash Signature** from _any_ shape using the `geohash_signature` module!
 
 Supports Python 2.7 and 3.5+ _(but please use 3, come on now people)_
 

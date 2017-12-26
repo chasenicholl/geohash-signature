@@ -44,7 +44,7 @@ class GeohashSignature:
                                self.geohash_level)
         self._to_check.add(ghash)
 
-        with ProcessPoolExecutor(max_workers=self._workers) as executor:
+        with ProcessPoolExecutor(max_workers=self._workers) as process:
             while True:
                 check_neighbors = set()
                 for ghash in self._to_check:
@@ -56,16 +56,16 @@ class GeohashSignature:
                             continue
                         check_neighbors.add(neighbor)
                 # If none of the neighbors are added stop
-                if self.add_hashes(self._to_check, executor) == 0:
+                if self.add_hashes(self._to_check, process) == 0:
                     break
                 self._to_check = check_neighbors
         return self._hashes
 
-    def add_hashes(self, hash_set, executor=None):
+    def add_hashes(self, hash_set, process=None):
         """Add hash set to hashes if condition is met"""
         added = 0
         # Single Process
-        if executor is None:
+        if process is None:
             for ghash in hash_set:
                 if self.geohash_signature_match(ghash) is True:
                     self._hashes.add(ghash)
@@ -76,10 +76,10 @@ class GeohashSignature:
         futures = []
         chunks = self.chunk_set(hash_set, int(len(hash_set) / self._workers))
         for chunk in chunks:
-            futures.append(executor.submit(GeohashSignature._condition,
-                                           chunk,
-                                           self.shape,
-                                           self.conditions))
+            futures.append(process.submit(GeohashSignature._condition,
+                                          chunk,
+                                          self.shape,
+                                          self.conditions))
         for future in futures:
             ghashes = future.result()
             added = added + len(ghashes)

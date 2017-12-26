@@ -1,4 +1,4 @@
-# GeohashSignature [![CircleCI](https://circleci.com/gh/chasenicholl/geohash-signature.svg?style=shield)](https://circleci.com/gh/chasenicholl/geohash-signature)
+# GeohashSignature [![CircleCI](https://circleci.com/gh/chasenicholl/geohash-signature/tree/master.svg?style=shield&circle-token=dbc7604505279b5d15f8bf3152bfcf58a27fee17)](https://circleci.com/gh/chasenicholl/geohash-signature/tree/master)
 
 Do you need to know what Geohashes make up a Polygon, or run along a LineString _**fast**_? Generate a **Geohash Signature** from _any_ shape using the `geohash_signature` module!
 

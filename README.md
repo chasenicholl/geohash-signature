@@ -6,9 +6,9 @@ Supports Python 2.7 and 3.5+ _(but please use 3, come on now people)_
 
 Signatures Visualized:
 
-<img src="/examples/signature-9.jpg" width="250"/>
-<img src="/examples/signature-10.jpg" width="250"/>
-<img src="/examples/signature-11.jpg" width="250"/>
+<img src="/examples/signature-9.jpg" width="250" style="display:inline-block;" />
+<img src="/examples/signature-10.jpg" width="250" style="display:inline-block;" />
+<img src="/examples/signature-11.jpg" width="250" style="display:inline-block;" />
 
 ### Requirements
 `shapley`, `python-geohash`, `geojson`

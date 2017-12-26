@@ -51,11 +51,11 @@ class TestGeohashSignature(unittest.TestCase):
                          'Geohash intersects count not correct')
 
     def test_within(self):
-        geohashes = within(self.shape, 11)        
+        geohashes = within(self.shape, 11)
         self.assertEqual(len(geohashes),
                          23634,
                          'Geohash within count not correct')
-        geohashes = within(self.shape, 10)        
+        geohashes = within(self.shape, 10)
         self.assertEqual(len(geohashes),
                          683,
                          'Geohash within count not correct')

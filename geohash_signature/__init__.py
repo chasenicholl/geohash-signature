@@ -203,8 +203,3 @@ def get_shape(shape):
     if isinstance(shape, dict) is True:
         shape = ShapelyShape(geojson)
     return shape
-
-
-def geohash_signature():
-    """Access to static methods"""
-    return GeohashSignature

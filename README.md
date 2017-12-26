@@ -5,9 +5,7 @@ Do you need to know what Geohashes make up a Polygon, or run along a LineString 
 Supports Python 2.7 and 3.5+ _(but please use 3, come on now people)_
 
 #### Signatures Visualized:
-Geohash Level 9 Signature                          |  Geohash Level 10 Signature                          | Geohash Level 11 Signature
-:-------------------------------------------------:|:-----------------------------------------------------:
-<img src="/examples/signature-9.jpg" width="250"/> |  <img src="/examples/signature-10.jpg" width="250"/> | <img src="/examples/signature-11.jpg" width="250"/>
+<img src="/examples/signature-9.jpg" width="250"/> <img src="/examples/signature-10.jpg" width="250"/> <img src="/examples/signature-11.jpg" width="250"/>
 
 ### Requirements
 `shapley`, `python-geohash`, `geojson`

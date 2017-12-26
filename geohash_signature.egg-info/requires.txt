@@ -1,6 +1,0 @@
-python-geohash
-geojson
-shapely
-
-[:python_version == "2.7"]
-futures

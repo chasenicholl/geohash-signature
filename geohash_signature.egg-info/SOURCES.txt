@@ -1,8 +1,0 @@
-setup.py
-geohash_signature/__init__.py
-geohash_signature.egg-info/PKG-INFO
-geohash_signature.egg-info/SOURCES.txt
-geohash_signature.egg-info/dependency_links.txt
-geohash_signature.egg-info/requires.txt
-geohash_signature.egg-info/top_level.txt
-scripts/geohash-signature

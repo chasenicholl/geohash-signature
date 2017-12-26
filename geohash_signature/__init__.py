@@ -201,5 +201,5 @@ def within(shape, geohash_level=10, compress=False):
 def get_shape(shape):
     """Convert GeoJSON to Shapely shape, or pass the shapely shape back"""
     if isinstance(shape, dict) is True:
-        shape = ShapelyShape(geojson)
+        shape = ShapelyShape(shape)
     return shape

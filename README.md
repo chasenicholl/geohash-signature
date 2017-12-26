@@ -4,7 +4,9 @@ Do you need to know what Geohashes make up a Polygon, or run along a LineString 
 
 Supports Python 2.7 and 3.5+ _(but please use 3, come on now people)_
 
-Uses `concurrent.futures.ProcessPoolExecutor` to significantly speed things up.
+Signatures Visualized:
+
+![Geohash Signature Level 9](/examples/signature-9.jpg)
 
 ### Requirements
 `shapley`, `python-geohash`, `geojson`

@@ -33,6 +33,12 @@ COORDINATES = [[-73.99603330, 40.73283237],
                [-73.99591423, 40.73275147]]
 SHAPE = Polygon(COORDINATES)
 
+# OR pass GeoJSON dictionary
+# SHAPE = {
+#     "type": "Polygon",
+#     "coordinates": [COORDINATES]
+# }
+
 # Returns a set() of Geohashes
 GEOHASHES = geohash_signature.intersects(SHAPE, geohash_level=10)
 GEOHASHES_WITHIN = geohash_signature.within(SHAPE, geohash_level=10)

@@ -129,3 +129,10 @@ $ geohash-signature /path/to/poly.geojson \
 ## References
 
 [Geohash Levels](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-geohashgrid-aggregation.html#_cell_dimensions_at_the_equator "Geohash Levels")
+
+## License
+
+This General Public License does not permit incorporating your program into
+proprietary programs.
+
+In simple words, if you are using this **NOT FOR PROFIT**, skies the limit. If you plan to use this in a commerical application, please reach out to me for licensing. Think how MySQL works.

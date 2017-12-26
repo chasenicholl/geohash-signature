@@ -6,7 +6,9 @@ Supports Python 2.7 and 3.5+ _(but please use 3, come on now people)_
 
 Signatures Visualized:
 
-![Geohash Signature Level 9](/examples/signature-9.jpg =250x)
+<img src="/examples/signature-9.jpg" width="250"/>
+<img src="/examples/signature-10.jpg" width="250"/>
+<img src="/examples/signature-11.jpg" width="250"/>
 
 ### Requirements
 `shapley`, `python-geohash`, `geojson`

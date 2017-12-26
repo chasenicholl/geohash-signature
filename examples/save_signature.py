@@ -1,5 +1,6 @@
 import sys
-from geohash_signature import intersects, GeohashSignature
+import geohash_signature
+
 
 SHAPE = {
     "type": "Polygon",
@@ -13,6 +14,7 @@ SHAPE = {
     ]
 }
 
-OUTPUT_FILE = sys.argv[1]
-GEOHASHES = intersects(SHAPE, 10)
-GeohashSignature.geohash_feature_collection(GEOHASHES, OUTPUT_FILE)
+
+OUTPUT_FILE = sys.argv[1]  # Assumes this a file path
+GEOHASHES = geohash_signature.intersects(SHAPE, 10)
+geohash_signature.geohash_feature_collection(GEOHASHES, OUTPUT_FILE)

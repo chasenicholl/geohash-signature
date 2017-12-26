@@ -1,0 +1,3 @@
+# Authors of GeoMet
+# Name <email address> - Month Year
+Chase Nicholl <chasenicholl@gmail.com> - December 2017

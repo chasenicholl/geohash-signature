@@ -65,4 +65,4 @@ $ geohash-signature /path/to/poly.geojson \
       --geohash_level=10 \
       --filter=intersects \
       --compress
-``
+```

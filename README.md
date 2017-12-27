@@ -18,6 +18,30 @@ Supports Python 2.7 and 3.5+ _(but please use 3, come on now people)_
 python setup.py install
 ```
 
+## Performance
+
+`within` performances slightly slower then `intersects` because `intersects` uses the fishnet algorithm to chop up the shape so it can be calculated in parallel.
+
+The larger the shape and/or smaller the Geohash Level will result in dramatic performance decreases. The sweet spot tends to be around a signature with a Geohash Level of 10.
+
+#### Results:
+
+Generating a Geohash Signature using the `intersects` method against a Polygon with dimensions of `152.9m x 152.4m` on an 8 core machine
+
+- intersects(POLYGON, 10)
+  - 0m1.806s
+  - results in 33,540 geohashes
+
+- intersects(POLYGON, 11)
+  - 0m26.470s
+  - results in 1,052,676 geohashes
+
+- intersects(POLYGON, 12)
+  - 19m55.589s
+  - results in 33,579,012 geohashes
+
+<img src="/examples/signature-performance.jpg" width="500"/>
+
 ## API
 ### **intersects**(shape, geohash_level=10, compress=False)
 
@@ -92,7 +116,7 @@ COORDINATES = [[-73.99603330, 40.73283237],
                [-73.99591423, 40.73275147]]
 SHAPE = Polygon(COORDINATES)
 
-intersects & within accept an optional compress attribute
+# intersects & within accept an optional compress attribute
 PREFIX, COMPONENTS = geohash_signature.intersects(SHAPE,
                                                   geohash_level=10,
                                                   compress=True)

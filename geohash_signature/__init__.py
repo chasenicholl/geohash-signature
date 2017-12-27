@@ -3,14 +3,14 @@
 GeohashSignature for generating GeoHash signatures of shapes
 """
 
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 import json
 import os
 import multiprocessing
 import geojson
 import geohash
 import shapely
-from shapely.geometry import shape as ShapelyShape
+from shapely.geometry import box, shape as ShapelyShape
 
 
 class GeohashSignature:
@@ -26,6 +26,29 @@ class GeohashSignature:
         self.geohash_level = 10
         self.conditions = ['intersects']
 
+    def generate_intersect(self, shape, geohash_level=10, conditions=None):
+        """Cut up Shape and Generate Geohash Signature in multiple procs"""
+        if 'shapely.geometry' not in str(type(shape)):
+            raise TypeError('"encode(<shapely.geometry...>) '
+                            'expects a shapely.geometry.<Shape>')
+        futures = []
+        with ProcessPoolExecutor(max_workers=self._workers) as process:
+            for part in GeohashSignature.fishnet(shape):
+                child = process.submit(GeohashSignature.static_generator,
+                                       part,
+                                       geohash_level,
+                                       conditions)
+                futures.append(child)
+        for future in futures:
+            self._hashes = self._hashes.union(future.result())
+        return self._hashes
+
+    @staticmethod
+    def static_generator(shape, geohash_level=10, conditions=None):
+        """Static generator"""
+        instance = GeohashSignature()
+        return instance.generate(shape, geohash_level, conditions)
+
     def generate(self, shape, geohash_level=10, conditions=None):
         """Generate Geohash Signature"""
         if 'shapely.geometry' not in str(type(shape)):
@@ -37,12 +60,10 @@ class GeohashSignature:
         if conditions is not None:
             self.conditions = conditions
 
-        # Start with the center most Geohash
-        start_point = self.representative_point
-        ghash = geohash.encode(start_point[1],
-                               start_point[0],
-                               self.geohash_level)
-        self._to_check.add(ghash)
+        # Start with the center of the Shape
+        starting_geohashes = [self.representative_point_ghash()]
+        # starting_geohashes.extend(self.bounds_geohashes())
+        self._to_check.update(starting_geohashes)
 
         with ProcessPoolExecutor(max_workers=self._workers) as process:
             while True:
@@ -148,6 +169,24 @@ class GeohashSignature:
         """Shortcut to Shapely representative_point"""
         return self.shape.representative_point().coords[0]
 
+    def representative_point_ghash(self):
+        """Geohash of representative point"""
+        start_point = self.representative_point
+        return geohash.encode(start_point[1],
+                              start_point[0],
+                              self.geohash_level)
+
+    def bounds_geohashes(self):
+        """Return list of Geohashes of bounds"""
+        lon1, lat1, lon2, lat2 = self.shape.bounds
+        bounds_ghash1 = geohash.encode(lat1,
+                                       lon1,
+                                       self.geohash_level)
+        bounds_ghash2 = geohash.encode(lat2,
+                                       lon2,
+                                       self.geohash_level)
+        return [bounds_ghash1, bounds_ghash2]
+
     @staticmethod
     def geohash_feature_collection(hashes, save_to=None):
         """Method to save geohashes to GeoJSON file"""
@@ -178,11 +217,34 @@ class GeohashSignature:
         entities = [ghash.replace(prefix, '') for ghash in sorted_hashes]
         return (prefix, set(sorted(entities)))
 
+    @staticmethod
+    def fishnet(shape, threshold=0.001):
+        """Split shape up using the fishnet algo"""
+        bounds = shape.bounds
+        xmin = int(bounds[0] // threshold)
+        xmax = int(bounds[2] // threshold)
+        ymin = int(bounds[1] // threshold)
+        ymax = int(bounds[3] // threshold)
+        # ncols = int(xmax - xmin + 1)
+        # nrows = int(ymax - ymin + 1)
+        result = []
+        for i in range(xmin, xmax+1):
+            for j in range(ymin, ymax+1):
+                _box = box(i*threshold,
+                           j*threshold,
+                           (i+1)*threshold,
+                           (j+1)*threshold)
+                _geom = shape.intersection(_box)
+                if _geom.is_empty:
+                    continue
+                result.append(_geom)
+        return result
+
 
 def intersects(shape, geohash_level=10, compress=False):
     """Return Geohashes at intersect shape"""
-    result = GeohashSignature().generate(get_shape(shape),
-                                         geohash_level)
+    result = GeohashSignature().generate_intersect(get_shape(shape),
+                                                   geohash_level)
     if compress is False:
         return result
     return GeohashSignature.compress_geohashes(result)

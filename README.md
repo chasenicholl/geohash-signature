@@ -58,7 +58,7 @@ Takes a Shapely Shape or GeoJSON dictionary, and returns a set of Geohashes that
 - geohashes: A \<List\> or \<Set\> of Geohashes
 - save_to: Optionally write the FeatureCollection to a file.
 
-Helper function to generate a Feature Collection. Takes a \<List\> or \<Set\> of Geohashes are returns them as Feature Collection of Polygons. Optionally you can save that Feature Collection to a file.
+Helper function to generate a Feature Collection. Takes a \<List\> or \<Set\> of Geohashes and returns them as a Feature Collection of Polygons _or_ optionally you can save that Feature Collection as a GeoJSON file.
 
 ### **compress_geohashes**(geohashes)
 

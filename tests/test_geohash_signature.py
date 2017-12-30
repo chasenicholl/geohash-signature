@@ -1,7 +1,7 @@
 # PYTHONPATH=$PYTHONPATH:../ python3 -m unittest discover -p 'test_*.py'
 """Unit tests for geohash_signature Module"""
 import unittest
-from geohash_signature import intersects, within
+import geohash_signature
 import shapely
 from shapely.geometry import Polygon, shape as ShapelyShape
 
@@ -35,27 +35,66 @@ class TestGeohashSignature(unittest.TestCase):
         shape = ShapelyShape(geojson)
         self.assertTrue(isinstance(shape, shapely.geometry.Polygon))
 
-        geohashes = intersects(shape, 10)
+        geohashes = geohash_signature.intersects(shape, 10)
         self.assertEqual(len(geohashes),
                          821,
                          'Geohash intersects count not correct')
 
     def test_intersects(self):
-        geohashes = intersects(self.shape, 11)
+        geohashes = geohash_signature.intersects(self.shape, 11)
         self.assertEqual(len(geohashes),
                          24448,
                          'Geohash intersects count not correct')
-        geohashes = intersects(self.shape, 10)
+        geohashes = geohash_signature.intersects(self.shape, 10)
         self.assertEqual(len(geohashes),
                          821,
                          'Geohash intersects count not correct')
 
     def test_within(self):
-        geohashes = within(self.shape, 11)
+        geohashes = geohash_signature.within(self.shape, 11)
         self.assertEqual(len(geohashes),
                          23634,
                          'Geohash within count not correct')
-        geohashes = within(self.shape, 10)
+        geohashes = geohash_signature.within(self.shape, 10)
         self.assertEqual(len(geohashes),
                          683,
                          'Geohash within count not correct')
+
+    def test_geohash_feature_collection(self):
+        geohashes = geohash_signature.within(self.shape, 10)
+        feat_c = geohash_signature.geohash_feature_collection(geohashes)
+        self.assertTrue('features' in feat_c)
+        self.assertEqual(len(feat_c['features']), 683)
+
+    def test_compress_geohashes(self):
+        prefix, components = geohash_signature.within(self.shape,
+                                                      10,
+                                                      compress=True)
+        self.assertEqual(prefix, 'dr5rspj')
+        self.assertEqual(len(components), 683)
+
+        geohashes = geohash_signature.within(self.shape, 10)
+        prefix, components = geohash_signature.compress_geohashes(geohashes)
+        self.assertEqual(prefix, 'dr5rspj')
+        self.assertEqual(len(components), 683)
+
+        prefix, components = geohash_signature.intersects(self.shape,
+                                                          10,
+                                                          compress=True)
+        self.assertEqual(prefix, 'dr5rspj')
+        self.assertEqual(len(components), 821)
+
+        geohashes = geohash_signature.intersects(self.shape, 10)
+        prefix, components = geohash_signature.compress_geohashes(geohashes)
+        self.assertEqual(prefix, 'dr5rspj')
+        self.assertEqual(len(components), 821)        
+
+    def test_get_shape(self):
+        geojson = {
+            'coordinates': self.coords,
+            'type': 'Polygon'
+        }
+        shape = geohash_signature.get_shape(geojson)
+        self.assertTrue(isinstance(shape, shapely.geometry.Polygon))
+        shape = geohash_signature.get_shape(shape)
+        self.assertTrue(isinstance(shape, shapely.geometry.Polygon))

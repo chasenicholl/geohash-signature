@@ -26,29 +26,6 @@ class GeohashSignature:
         self.geohash_level = 10
         self.conditions = ['intersects']
 
-    def generate_intersect(self, shape, geohash_level=10, conditions=None):
-        """Cut up Shape and Generate Geohash Signature in multiple procs"""
-        if 'shapely.geometry' not in str(type(shape)):
-            raise TypeError('"encode(<shapely.geometry...>) '
-                            'expects a shapely.geometry.<Shape>')
-        futures = []
-        with ProcessPoolExecutor(max_workers=self._workers) as process:
-            for part in GeohashSignature.fishnet(shape):
-                child = process.submit(GeohashSignature.static_generator,
-                                       part,
-                                       geohash_level,
-                                       conditions)
-                futures.append(child)
-        for future in futures:
-            self._hashes = self._hashes.union(future.result())
-        return self._hashes
-
-    @staticmethod
-    def static_generator(shape, geohash_level=10, conditions=None):
-        """Static generator"""
-        instance = GeohashSignature()
-        return instance.generate(shape, geohash_level, conditions)
-
     def generate(self, shape, geohash_level=10, conditions=None):
         """Generate Geohash Signature"""
         if 'shapely.geometry' not in str(type(shape)):
@@ -82,6 +59,34 @@ class GeohashSignature:
                 self._to_check = check_neighbors
         return self._hashes
 
+    def generate_intersect(self, shape, geohash_level=10, conditions=None):
+        """Cut up Shape and Generate Geohash Signature in multiple procs"""
+        if 'shapely.geometry' not in str(type(shape)):
+            raise TypeError('"encode(<shapely.geometry...>) '
+                            'expects a shapely.geometry.<Shape>')
+        futures = []
+        if self._workers > 1:
+            # Only cut shape up if we have multi procs to use
+            shape_parts = GeohashSignature.fishnet(shape)
+        else:
+            shape_parts = [shape]
+        with ProcessPoolExecutor(max_workers=self._workers) as process:
+            for part in shape_parts:
+                child = process.submit(GeohashSignature.instance_generator,
+                                       part,
+                                       geohash_level,
+                                       conditions)
+                futures.append(child)
+        for future in futures:
+            self._hashes = self._hashes.union(future.result())
+        return self._hashes
+
+    @staticmethod
+    def instance_generator(shape, geohash_level=10, conditions=None):
+        """Instance generator"""
+        instance = GeohashSignature()
+        return instance.generate(shape, geohash_level, conditions)
+
     def add_hashes(self, hash_set, process=None):
         """Add hash set to hashes if condition is met"""
         added = 0
@@ -97,7 +102,7 @@ class GeohashSignature:
         futures = []
         chunks = self.chunk_set(hash_set, int(len(hash_set) / self._workers))
         for chunk in chunks:
-            futures.append(process.submit(GeohashSignature._condition,
+            futures.append(process.submit(GeohashSignature._check_condition,
                                           chunk,
                                           self.shape,
                                           self.conditions))
@@ -110,10 +115,10 @@ class GeohashSignature:
     def geohash_signature_match(self, ghash):
         """Check if Geohash matches configured conditions"""
         polygon = GeohashSignature.geohash_to_polygon(ghash)
-        return self.condition(polygon)
+        return self.check_condition(polygon)
 
     @staticmethod
-    def _condition(chunk, shape, conditions):
+    def _check_condition(chunk, shape, conditions):
         """Multiprocessing signature check on chunk"""
         passed = []
         for ghash in chunk:
@@ -128,7 +133,7 @@ class GeohashSignature:
                     break
         return passed
 
-    def condition(self, polygon):
+    def check_condition(self, polygon):
         """
         Dynamically check conditions
         """
@@ -142,9 +147,9 @@ class GeohashSignature:
         return False
 
     @staticmethod
-    def geohash_to_polygon(neighbor):
+    def geohash_to_polygon(ghash):
         """Convert a Geohash to a shapely polygon"""
-        bbox = geohash.bbox(neighbor)
+        bbox = geohash.bbox(ghash)
         geom = {'coordinates': [[[bbox['w'], bbox['s']],
                                  [bbox['w'], bbox['n']],
                                  [bbox['e'], bbox['n']],
@@ -192,12 +197,7 @@ class GeohashSignature:
         """Method to save geohashes to GeoJSON file"""
         features = []
         for ghash in sorted(hashes):
-            bbox = geohash.bbox(ghash)
-            coordinates = [[[bbox['w'], bbox['s']],
-                            [bbox['w'], bbox['n']],
-                            [bbox['e'], bbox['n']],
-                            [bbox['e'], bbox['s']]]]
-            poly = geojson.Polygon(coordinates)
+            poly = GeohashSignature.geohash_to_polygon(ghash)
             features.append(geojson.Feature(geometry=poly))
         feature_collection = geojson.FeatureCollection(features)
         if save_to is None:
@@ -211,11 +211,11 @@ class GeohashSignature:
 
     @staticmethod
     def compress_geohashes(hashes):
-        """Compress hashes to common_prefix:partical,partical"""
+        """Compress hashes to prefix:component,component"""
         sorted_hashes = sorted(hashes)
         prefix = os.path.commonprefix(sorted_hashes)
-        entities = [ghash.replace(prefix, '') for ghash in sorted_hashes]
-        return (prefix, set(sorted(entities)))
+        components = [ghash.replace(prefix, '') for ghash in sorted_hashes]
+        return (prefix, set(sorted(components)))
 
     @staticmethod
     def fishnet(shape, threshold=0.001):
@@ -225,8 +225,6 @@ class GeohashSignature:
         xmax = int(bounds[2] // threshold)
         ymin = int(bounds[1] // threshold)
         ymax = int(bounds[3] // threshold)
-        # ncols = int(xmax - xmin + 1)
-        # nrows = int(ymax - ymin + 1)
         result = []
         for i in range(xmin, xmax+1):
             for j in range(ymin, ymax+1):

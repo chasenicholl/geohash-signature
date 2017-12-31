@@ -9,6 +9,7 @@ import os
 import multiprocessing
 import geojson
 import geohash
+import shapely
 from shapely.geometry import box, shape as ShapelyShape
 
 
@@ -248,6 +249,10 @@ def intersects(shape, geohash_level=10, compress=False):
 
 def within(shape, geohash_level=10, compress=False):
     """Return Geohashes that are within the shape"""
+    shape = get_shape(shape)
+    if isinstance(shape, shapely.geometry.Polygon) is False:
+        raise TypeError('geohash_signature.within only supports '
+                        '"shapely.geometry.Polygon"')
     result = GeohashSignature().generate(get_shape(shape),
                                          geohash_level,
                                          conditions=['within'])

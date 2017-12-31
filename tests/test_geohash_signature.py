@@ -28,6 +28,7 @@ class TestGeohashSignature(unittest.TestCase):
         super(TestGeohashSignature, cls).tearDownClass()
 
     def test_geojson_to_shapely(self):
+        """Test that we can create and use a Shapely Shape"""
         geojson = {
             'type': 'Polygon',
             'coordinates': self.coords
@@ -41,6 +42,7 @@ class TestGeohashSignature(unittest.TestCase):
                          'Geohash intersects count not correct')
 
     def test_intersects(self):
+        """Test the intersects method"""
         geohashes = geohash_signature.intersects(self.shape, 11)
         self.assertEqual(len(geohashes),
                          24448,
@@ -51,6 +53,7 @@ class TestGeohashSignature(unittest.TestCase):
                          'Geohash intersects count not correct')
 
     def test_within(self):
+        """Test the within method"""
         geohashes = geohash_signature.within(self.shape, 11)
         self.assertEqual(len(geohashes),
                          23634,
@@ -61,12 +64,14 @@ class TestGeohashSignature(unittest.TestCase):
                          'Geohash within count not correct')
 
     def test_geohash_feature_collection(self):
+        """Test creating a Feature Collection from Geohashes"""
         geohashes = geohash_signature.within(self.shape, 10)
         feat_c = geohash_signature.geohash_feature_collection(geohashes)
         self.assertTrue('features' in feat_c)
         self.assertEqual(len(feat_c['features']), 683)
 
     def test_compress_geohashes(self):
+        """Test compressing Geohashes"""
         prefix, components = geohash_signature.within(self.shape,
                                                       10,
                                                       compress=True)
@@ -87,9 +92,10 @@ class TestGeohashSignature(unittest.TestCase):
         geohashes = geohash_signature.intersects(self.shape, 10)
         prefix, components = geohash_signature.compress_geohashes(geohashes)
         self.assertEqual(prefix, 'dr5rspj')
-        self.assertEqual(len(components), 821)        
+        self.assertEqual(len(components), 821)
 
     def test_get_shape(self):
+        """Test creating a Shapely Shape helper method"""
         geojson = {
             'coordinates': self.coords,
             'type': 'Polygon'

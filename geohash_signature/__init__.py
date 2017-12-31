@@ -3,13 +3,12 @@
 GeohashSignature for generating GeoHash signatures of shapes
 """
 
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 import json
 import os
 import multiprocessing
 import geojson
 import geohash
-import shapely
 from shapely.geometry import box, shape as ShapelyShape
 
 
@@ -65,11 +64,10 @@ class GeohashSignature:
             raise TypeError('"encode(<shapely.geometry...>) '
                             'expects a shapely.geometry.<Shape>')
         futures = []
+        shape_parts = [shape]
+        # Only cut shape up if we have multi procs to use
         if self._workers > 1:
-            # Only cut shape up if we have multi procs to use
             shape_parts = GeohashSignature.fishnet(shape)
-        else:
-            shape_parts = [shape]
         with ProcessPoolExecutor(max_workers=self._workers) as process:
             for part in shape_parts:
                 child = process.submit(GeohashSignature.instance_generator,
